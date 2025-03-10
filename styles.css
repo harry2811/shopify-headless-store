@@ -19,6 +19,7 @@ body {
 .product img {
     width: 100%;
 }
+
 div#products {
     display: flex;
     flex-wrap: wrap;
