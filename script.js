@@ -1,19 +1,19 @@
-const SHOPIFY_STORE_URL = "jd-sports1.myshopify.com"; // Replace with your Shopify store URL
-const SHOPIFY_ACCESS_TOKEN = "bfb2421abeb9d11f11002e2f3772c164"; // Replace with your Storefront API token
+const storeUrl = "https://jd-sports1.myshopify.com/api/2023-01/graphql.json"; 
+const storefrontAccessToken = "bfb2421abeb9d11f11002e2f3772c164"; // Replace with new token if needed
 
 async function fetchProducts() {
     const query = `
         {
-            products(first: 10) {
+            products(first: 20) {
                 edges {
                     node {
                         id
                         title
-                        handle
+                        description
                         images(first: 1) {
                             edges {
                                 node {
-                                    src
+                                    url
                                 }
                             }
                         }
@@ -23,32 +23,54 @@ async function fetchProducts() {
         }
     `;
 
-    const res = await fetch(`https://${jd-sports1.myshopify.com}/api/2024-01/graphql.json`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-Shopify-Storefront-Access-Token": bfb2421abeb9d11f11002e2f3772c164,
-        },
-        body: JSON.stringify({ query }),
-    });
+    try {
+        const response = await fetch(storeUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Storefront-Access-Token": "bfb2421abeb9d11f11002e2f3772c164"
+            },
+            body: JSON.stringify({ query })
+        });
 
-    const data = await res.json();
-    displayProducts(data.data.products.edges);
+        if (!response.ok) {
+            throw new Error(`HTTP Error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        // Log API response for debugging
+        console.log("API Response:", data);
+
+        // Ensure we have product data before displaying
+        if (data.data && data.data.products) {
+            displayProducts(data.data.products.edges);
+        } else {
+            console.error("No products found or incorrect API response format.");
+        }
+    } catch (error) {
+        console.error("Error fetching products:", error);
+    }
 }
 
 function displayProducts(products) {
-    const container = document.getElementById("products-container");
-    container.innerHTML = ""; // Clear previous content
+    const productsContainer = document.getElementById("products");
+    
+    // Clear previous content
+    productsContainer.innerHTML = "";
 
+    // Loop through each product and create elements
     products.forEach(({ node }) => {
-        const productDiv = document.createElement("div");
-        productDiv.classList.add("product");
-        productDiv.innerHTML = `
+        const productElement = document.createElement("div");
+        productElement.classList.add("product");
+        productElement.innerHTML = `
             <h2>${node.title}</h2>
-            <img src="${node.images.edges[0]?.node.src}" alt="${node.title}">
+            <img src="${node.images.edges[0]?.node.url || ''}" alt="${node.title}" width="150">
+            <p>${node.description || 'No description available'}</p>
         `;
-        container.appendChild(productDiv);
+        productsContainer.appendChild(productElement);
     });
 }
 
+// Fetch products on page load
 fetchProducts();

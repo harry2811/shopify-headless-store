@@ -19,3 +19,16 @@ body {
 .product img {
     width: 100%;
 }
+div#products {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 1280px;
+    margin: auto;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.product {
+    max-width: 30%;
+    flex: 25%;
+}
